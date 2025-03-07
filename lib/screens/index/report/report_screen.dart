@@ -21,7 +21,7 @@ class _ReportScreenState extends State<ReportScreen> {
   late List<ProductModel> listProduct;
   late List<TransactionModel> listTransaction;
   bool isInitDone = false;
-  DateTime startDate = DateTime.now().subtract(const Duration(days: 6));
+  DateTime startDate = DateTime.now().subtract(const Duration(days: 25));
   DateTime endDate = DateTime.now();
   // --------------------------------------------------------------------------
   double sellingTotal = 0;
@@ -134,7 +134,7 @@ class _ReportScreenState extends State<ReportScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                                'Laporan tanggal ${startDate.day}-${endDate.day} ${monthNamesIndonesian[startDate.month - 1]} ${startDate.year}'),
+                                'Laporan tanggal ${startDate.day} ${monthNamesIndonesian[startDate.month - 1].substring(0, 3)} - ${endDate.day} ${monthNamesIndonesian[endDate.month - 1].substring(0, 3)} ${startDate.year}'),
                           ),
                           IconButton(
                             onPressed: pickDate,
@@ -179,7 +179,6 @@ class _ReportScreenState extends State<ReportScreen> {
                                     const Text(
                                       'Total Penjualan',
                                       style: TextStyle(
-                                        color: Colors.black,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -187,7 +186,6 @@ class _ReportScreenState extends State<ReportScreen> {
                                     Text(
                                       'Rp ${IdeeynCurrencyString.numberToStringIndonesian(sellingTotal).split(',').first}',
                                       style: const TextStyle(
-                                        color: Colors.black,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,
                                       ),
@@ -224,7 +222,7 @@ class _ReportScreenState extends State<ReportScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 5),
                       Row(
                         children: [
                           Expanded(
@@ -248,7 +246,7 @@ class _ReportScreenState extends State<ReportScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 5),
                       Row(
                         children: [
                           Expanded(
@@ -309,17 +307,18 @@ class _ReportScreenState extends State<ReportScreen> {
                   Text(
                     achievement,
                     style: const TextStyle(
-                      color: Colors.black,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+                  FittedBox(
+                    child: Text(
+                      description,
+                      overflow: TextOverflow.fade,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ],
