@@ -5,6 +5,13 @@ import 'package:flutter/material.dart';
 class GLOBAL {
   GLOBAL._();
 
+//!############################### VERSION ####################################
+
+  static String APP_NAME = 'Inovasy-Prototype';
+  static String CURRENT_VERSION = '1.0.0+1'; //! <========== CHANGE EVERY UPDATE
+
+//!################################ THEME #####################################
+
   static Color appLogoColor = const Color.fromARGB(255, 251, 86, 7);
   static Color appBackgroundColor = Colors.grey.shade300;
 
@@ -21,4 +28,18 @@ class GLOBAL {
   // -----------------------------------------------
   static String userField = "json";
   static String shopField = "json";
+
+//!############################## IMAGE PATHS #################################
+
+  static String imageAppLogo = 'assets/images/inovasy_logo.png';
+  static String imageAppMotto = 'assets/images/inovasy_logo.png';
+  static String imageCart = 'assets/images/cart.png';
+  static String imageCredit = 'assets/images/credit.png';
+  static String imageGraphFiller = 'assets/images/filler_blue.png';
+  static String imageFund = 'assets/images/fund.png';
+  static String imageGraph = 'assets/images/graph.png';
+  static String imageHeadDecor = 'assets/images/header_decoration.png';
+  static String imageMoney = 'assets/images/money.png';
+  static String imagePerson = 'assets/images/person.png';
+  static String imageTrade = 'assets/images/trade.png';
 }
