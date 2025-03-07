@@ -1,4 +1,4 @@
-package com.example.inovasy_prototype
+package com.ideeyn.inovasy_prototype
 
 import io.flutter.embedding.android.FlutterActivity
 

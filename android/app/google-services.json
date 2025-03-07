@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "999723895699",
+    "project_id": "ideeyn-inovasy-prototype",
+    "storage_bucket": "ideeyn-inovasy-prototype.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999723895699:android:5e8f481102ca41f8157666",
+        "android_client_info": {
+          "package_name": "com.ideeyn.inovasy_prototype"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBj_3aS5Bmb9D72HrCVl3yf2aWwd_plx68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
