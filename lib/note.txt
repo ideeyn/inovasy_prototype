@@ -1,0 +1,13 @@
+Highlights
+Focus on design
+Focus on best practice code
+Focus on performance
+Additional value if integration with AI for summaries data
+
+TIME
+3 s/d 4 Days
+
+1. Buat satu tampilan UI/UX kurang lebih seperti di atas, yang user friendly pada mobile
+2. Integrasi ke API untuk masing-masing datanya, bisa menggunakan dummy API 
+3. Gunakan code yang rapih dan baik
+4. Nilai lebih jika berhasil untuk integrasi ke AI untuk menyimpulkan data ini
