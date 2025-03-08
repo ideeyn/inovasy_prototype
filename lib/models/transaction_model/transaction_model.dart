@@ -1,15 +1,17 @@
 import 'purchase_model.dart';
 
 class TransactionModel {
+  String? sales;
   String? uid;
   String? city;
   List<PurchaseModel>? purchase;
   DateTime? date;
 
-  TransactionModel({this.uid, this.city, this.purchase, this.date});
+  TransactionModel({this.sales, this.uid, this.city, this.purchase, this.date});
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
+      sales: json['sales'] as String?,
       uid: json['uid'] as String?,
       city: json['city'] as String?,
       purchase: (json['purchase'] as List<dynamic>?)
@@ -20,6 +22,7 @@ class TransactionModel {
   }
 
   Map<String, dynamic> toJson() => {
+        'sales': sales,
         'uid': uid,
         'city': city,
         'purchase': purchase?.map((e) => e.toJson()).toList(),

@@ -6,6 +6,7 @@ import 'package:inovasy_prototype/global/function/string_formatter.dart';
 import 'package:inovasy_prototype/global/style/buttonstyle.dart';
 import 'package:inovasy_prototype/models/date_names.dart';
 import 'package:inovasy_prototype/models/product_model/product_model.dart';
+import 'package:inovasy_prototype/models/sales_model/sales_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/purchase_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/transaction_model.dart';
 import 'package:inovasy_prototype/models/user_model/user_model.dart';
@@ -21,6 +22,7 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   late List<String> listViewer;
   late List<UserModel> listUser;
+  late List<SalesModel> listSales;
   late List<ProductModel> listProduct;
   late List<TransactionModel> listTransaction;
   bool isInitDone = false;
@@ -54,6 +56,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
       if (selectedDays > 31) {
         // ❌ Show warning if selection is more than 31 days
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("You can only select up to 31 days."),
@@ -73,6 +76,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> getFirebaseData() async {
     listViewer = await LibraryFirebase.getViewers();
     listUser = await LibraryFirebase.getUsers();
+    listSales = await LibraryFirebase.getSales();
     listProduct = await LibraryFirebase.getProduct();
     listTransaction = await LibraryFirebase.getTransactions();
     calculateTotals();
@@ -154,6 +158,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     endDate.difference(startDate).inDays + 1,
                     (index) => startDate.add(Duration(days: index)),
                   ),
+                  listSales: listSales,
                   listUser: listUser,
                   listProduct: listProduct,
                   listTransaction: inDateTransactions,

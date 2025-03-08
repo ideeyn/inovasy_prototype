@@ -3,19 +3,30 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:inovasy_prototype/APP_GLOBAL.dart';
 import 'package:inovasy_prototype/models/product_model/product_model.dart';
+import 'package:inovasy_prototype/models/sales_model/sales_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/transaction_model.dart';
 import 'package:inovasy_prototype/models/user_model/user_model.dart';
 
 class LibraryFirebase {
   LibraryFirebase._();
 
+  //!############################## SALES ######################################
+  static Future<List<SalesModel>> getSales() async {
+    var document = await FirebaseFirestore.instance
+        .collection(GLOBAL.accountCollection)
+        .doc(GLOBAL.salesDoc)
+        .get();
+    List<dynamic> field = jsonDecode(document.data()?[GLOBAL.accountField]);
+    return field.map((user) => SalesModel.fromJson(user)).toList();
+  }
+
   //!############################## USER ######################################
   static Future<List<UserModel>> getUsers() async {
     var document = await FirebaseFirestore.instance
-        .collection(GLOBAL.userCollection)
+        .collection(GLOBAL.accountCollection)
         .doc(GLOBAL.userDoc)
         .get();
-    List<dynamic> field = jsonDecode(document.data()?[GLOBAL.userField]);
+    List<dynamic> field = jsonDecode(document.data()?[GLOBAL.accountField]);
     return field.map((user) => UserModel.fromJson(user)).toList();
   }
 

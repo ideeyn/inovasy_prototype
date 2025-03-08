@@ -17,16 +17,17 @@ class GLOBAL {
 
 //!########################## FIREBASE VARIABLES ##############################
   static String FIREBASE_ID = "ideeyn-inovasy-prototype";
-  static String userCollection = "user";
+  static String accountCollection = "account";
   static String shopCollection = "shop";
   // -----------------------------------------------
-  static String userDoc = "profile";
+  static String userDoc = "user";
+  static String salesDoc = "sales";
   // -----------------------------------------------
   static String productDoc = "product";
   static String transactionDoc = "transaction";
   static String viewerDoc = "viewer";
   // -----------------------------------------------
-  static String userField = "json";
+  static String accountField = "json";
   static String shopField = "json";
 
 //!############################## IMAGE PATHS #################################

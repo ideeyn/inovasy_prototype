@@ -3,6 +3,7 @@ import 'package:inovasy_prototype/APP_GLOBAL.dart';
 import 'package:inovasy_prototype/models/product_model/product_model.dart';
 import 'package:inovasy_prototype/models/ranking_menues.dart';
 import 'package:inovasy_prototype/models/ranking_model.dart';
+import 'package:inovasy_prototype/models/sales_model/sales_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/purchase_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/transaction_model.dart';
 import 'package:inovasy_prototype/models/user_model/user_model.dart';
@@ -13,11 +14,13 @@ import 'package:inovasy_prototype/screens/index/report/ranking/widget_ranking/dr
 class RankingScreen extends StatefulWidget {
   const RankingScreen(
       {super.key,
+      required this.listSales,
       required this.listUser,
       required this.listProduct,
       required this.listTransaction,
       required this.dates});
 
+  final List<SalesModel> listSales;
   final List<UserModel> listUser;
   final List<ProductModel> listProduct;
   final List<TransactionModel> listTransaction;
@@ -118,7 +121,7 @@ class _RankingScreenState extends State<RankingScreen> {
       tableData = widget.listTransaction
           .fold<Map<String, RankingTableModel>>({}, (map, t) {
             // Unique identifier for the transaction owner
-            String uid = t.uid!;
+            String sales = t.sales!;
 
             // Calculate total price for this transaction from all its purchases
             double transactionTotal = t.purchase!.fold<double>(0, (sum, p) {
@@ -127,17 +130,17 @@ class _RankingScreenState extends State<RankingScreen> {
               return sum + (p.quantity! * product.price!);
             });
 
-            // Update our map: if the UID exists, increment count and add to the price;
-            // otherwise, create a new RankingTableModel for this UID.
+            // Update our map: if the sales exists, increment count and add to the price;
+            // otherwise, create a new RankingTableModel for this sales.
             map.update(
-              uid,
+              sales,
               (existing) => RankingTableModel(
-                name: uid,
+                name: sales,
                 count: existing.count! + 1,
                 price: existing.price! + transactionTotal,
               ),
               ifAbsent: () => RankingTableModel(
-                name: uid,
+                name: sales,
                 count: 1,
                 price: transactionTotal,
               ),
@@ -147,7 +150,7 @@ class _RankingScreenState extends State<RankingScreen> {
           })
           .values
           .map((d) => RankingTableModel(
-              name: widget.listUser.firstWhere((u) => u.uid! == d.name!).name,
+              name: widget.listSales.firstWhere((u) => u.sid! == d.name!).name,
               count: d.count,
               price: d.price))
           .toList();
