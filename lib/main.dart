@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:inovasy_prototype/screens/index/report/report_screen.dart';
+import 'package:inovasy_prototype/screens/onboarding/onboarding.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +15,7 @@ class InterviewApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ReportScreen(),
+      home: OnboardingScreen(),
     );
   }
 }

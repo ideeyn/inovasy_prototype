@@ -4,6 +4,7 @@ import 'package:inovasy_prototype/APP_GLOBAL.dart';
 import 'package:inovasy_prototype/firebase/firebase.dart';
 import 'package:inovasy_prototype/global/function/string_formatter.dart';
 import 'package:inovasy_prototype/global/style/buttonstyle.dart';
+import 'package:inovasy_prototype/libraries/http_ai.dart';
 import 'package:inovasy_prototype/models/date_names.dart';
 import 'package:inovasy_prototype/models/product_model/product_model.dart';
 import 'package:inovasy_prototype/models/sales_model/sales_model.dart';
@@ -42,6 +43,8 @@ class _ReportScreenState extends State<ReportScreen> {
   int productCount = 0;
   double creditTotal = 0;
   double marginTotal = 0;
+  // --------------------------------------------------------------------------
+  String messageFromAI = 'membuat ringkasan dengan AI ...';
 
   /// 📅 Function to Pick Date Range
   Future<void> pickDate() async {
@@ -60,6 +63,10 @@ class _ReportScreenState extends State<ReportScreen> {
               primary: GLOBAL.appLogoColor, // Selected date circle color
               onPrimary: Colors.white, // Selected date text color
               onSurface: Colors.black, // Unselected date text color
+            ),
+            appBarTheme: AppBarTheme(
+              backgroundColor: Colors.orange.withOpacity(0.3), // background
+              foregroundColor: Colors.orange, // Change text/icon color
             ),
             // For the range selection, you might also tweak the date picker theme:
             datePickerTheme: DatePickerThemeData(
@@ -104,6 +111,24 @@ class _ReportScreenState extends State<ReportScreen> {
     calculateTotals();
     isInitDone = true;
     setState(() {});
+    callAI();
+  }
+
+  Future<void> callAI() async {
+    String aiText = await callAIsAPI();
+    for (var user in listUser) {
+      aiText = aiText.replaceAll(user.uid!, user.name!);
+    }
+    for (var user in listSales) {
+      aiText = aiText.replaceAll(user.sid!, user.name!);
+    }
+    messageFromAI = '';
+    for (int i = 0; i < aiText.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 5)); // Adjust speed
+      setState(() {
+        messageFromAI += aiText[i];
+      });
+    }
   }
 
   @override
@@ -426,6 +451,32 @@ class _ReportScreenState extends State<ReportScreen> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Ringkasan dari AI',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.orange.shade100,
+                            ),
+                            child: Text(
+                              messageFromAI,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 100),
                           Align(
                             alignment: Alignment.centerRight,
@@ -497,97 +548,124 @@ class _ReportScreenState extends State<ReportScreen> {
     return Container(
       height: double.infinity,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.grey, width: 0.2)),
-      child: LineChart(
-        LineChartData(
-          gridData: const FlGridData(show: false),
-          titlesData: const FlTitlesData(show: false),
-          borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: List.generate(
-                  dates.length,
-                  (index) =>
-                      FlSpot(index.toDouble(), dailyTransactions[index])),
-              color: Colors.black,
-              barWidth: 1,
-              isCurved: true,
-              isStrokeCapRound: true,
-              dotData: FlDotData(
-                show: true, // Always show dots
-                getDotPainter: (spot, percent, barData, index) {
-                  bool isSelected = selectedGraphIndex == index;
-                  return FlDotCirclePainter(
-                    radius: isSelected ? 6 : 3, // Bigger dot when selected
-                    color: isSelected ? GLOBAL.appLogoColor : Colors.black,
-                  );
-                },
+          border: Border.all(color: Colors.green, width: 0.5)),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          Expanded(
+            child: LineChart(
+              LineChartData(
+                backgroundColor: Colors.white,
+                clipData: const FlClipData.vertical(),
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(show: false),
+                borderData: FlBorderData(show: false),
+                maxY: dailyTransactions.reduce((a, b) => a > b ? a : b) * 1.1,
+                minY: dailyTransactions.reduce((a, b) => a > b ? a : b) * -0.1,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: List.generate(
+                        dates.length,
+                        (index) =>
+                            FlSpot(index.toDouble(), dailyTransactions[index])),
+                    color: Colors.blue,
+                    barWidth: 1,
+                    isCurved: true,
+                    isStrokeCapRound: true,
+                    belowBarData:
+                        BarAreaData(show: true, color: Colors.green.shade50),
+                    dotData: FlDotData(
+                      show: true, // Always show dots
+                      getDotPainter: (spot, percent, barData, index) {
+                        bool isSelected = selectedGraphIndex == index;
+                        return FlDotCirclePainter(
+                          radius:
+                              isSelected ? 6 : 2, // Bigger dot when selected
+                          color: isSelected ? GLOBAL.appLogoColor : Colors.blue,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+                lineTouchData: LineTouchData(
+                  handleBuiltInTouches: true,
+                  getTouchedSpotIndicator: (barData, spotIndexes) {
+                    return spotIndexes.map((index) {
+                      return const TouchedSpotIndicatorData(
+                        // Remove horizontal line
+                        FlLine(color: Colors.transparent),
+                        FlDotData(),
+                      );
+                    }).toList();
+                  },
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: Colors.blueGrey,
+                    getTooltipItems: (spots) => spots
+                        .map((spot) {
+                          // bool isSelected =
+                          //     selectedGraphIndex == spot.spotIndex;
+                          // if (!isSelected) return null;
+                          return LineTooltipItem(
+                            'Rp ${IdeeynCurrencyString.numberToStringIndonesian(spot.y).split(',')[0]}\n', // Custom bubble text
+                            const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                            children: [
+                              TextSpan(
+                                text:
+                                    'Tanggal ${dates[spot.x.toInt()].day} ${monthNamesIndonesian[dates[spot.x.toInt()].month - 1].substring(0, 3)}',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                          );
+                        })
+                        .whereType<LineTooltipItem>()
+                        .toList(),
+                  ),
+                  touchCallback:
+                      (FlTouchEvent event, LineTouchResponse? response) {
+                    if (event is FlTapUpEvent &&
+                        response?.lineBarSpots != null) {
+                      selectedGraphIndex =
+                          response!.lineBarSpots!.first.spotIndex;
+                      setState(() {});
+                    }
+                  },
+                ),
+                extraLinesData: ExtraLinesData(horizontalLines: [
+                  HorizontalLine(
+                    y: listTransaction
+                        .where(
+                            (t) => t.date?.day == dates[selectedGraphIndex].day)
+                        .expand((t) => t.purchase ?? <PurchaseModel>[])
+                        .map((p) {
+                      double price = listProduct
+                          .firstWhere((prd) => prd.id == p.id)
+                          .price!
+                          .toDouble();
+                      return p.quantity! * price;
+                    }).fold(0, (sum, price) => sum + price),
+                    color: Colors.orange.shade600,
+                    strokeWidth: 1,
+                    dashArray: [5, 5],
+                  ),
+                ]),
               ),
             ),
-          ],
-          lineTouchData: LineTouchData(
-            handleBuiltInTouches: true,
-            getTouchedSpotIndicator: (barData, spotIndexes) {
-              return spotIndexes.map((index) {
-                return const TouchedSpotIndicatorData(
-                  // Remove horizontal line
-                  FlLine(color: Colors.transparent),
-                  FlDotData(),
-                );
-              }).toList();
-            },
-            touchTooltipData: LineTouchTooltipData(
-              tooltipBgColor: Colors.blueGrey,
-              getTooltipItems: (spots) => spots
-                  .map((spot) {
-                    // bool isSelected =
-                    //     selectedGraphIndex == spot.spotIndex;
-                    // if (!isSelected) return null;
-                    return LineTooltipItem(
-                      'Rp ${IdeeynCurrencyString.numberToStringIndonesian(spot.y).split(',')[0]}\n', // Custom bubble text
-                      const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                      children: [
-                        TextSpan(
-                          text:
-                              'Tanggal ${dates[spot.x.toInt()].day} ${monthNamesIndonesian[dates[spot.x.toInt()].month - 1].substring(0, 3)}',
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.w300),
-                        ),
-                      ],
-                    );
-                  })
-                  .whereType<LineTooltipItem>()
-                  .toList(),
-            ),
-            touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
-              if (event is FlTapUpEvent && response?.lineBarSpots != null) {
-                selectedGraphIndex = response!.lineBarSpots!.first.spotIndex;
-                setState(() {});
-              }
-            },
           ),
-          extraLinesData: ExtraLinesData(horizontalLines: [
-            HorizontalLine(
-              y: listTransaction
-                  .where((t) => t.date?.day == dates[selectedGraphIndex].day)
-                  .expand((t) => t.purchase ?? <PurchaseModel>[])
-                  .map((p) {
-                double price = listProduct
-                    .firstWhere((prd) => prd.id == p.id)
-                    .price!
-                    .toDouble();
-                return p.quantity! * price;
-              }).fold(0, (sum, price) => sum + price),
-              color: Colors.black.withOpacity(0.5),
-              strokeWidth: 1,
-              dashArray: [5, 5],
+          Container(
+            height: 10,
+            decoration: BoxDecoration(
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(10)),
+              color: Colors.green.shade50,
             ),
-          ]),
-        ),
+          ),
+        ],
       ),
     );
   }

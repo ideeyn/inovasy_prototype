@@ -34,6 +34,8 @@ class GLOBAL {
 
   static String imageAppLogo = 'assets/images/inovasy_logo.png';
   static String imageAppMotto = 'assets/images/inovasy_logo.png';
+  static String imageOnBoarding1 = 'assets/images/onboarding_1.png';
+  static String imageOnBoarding2 = 'assets/images/onboarding_2.png';
   static String imageCart = 'assets/images/cart.png';
   static String imageCredit = 'assets/images/credit.png';
   static String imageGraphFiller = 'assets/images/filler_blue.png';

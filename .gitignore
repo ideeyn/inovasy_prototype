@@ -44,3 +44,5 @@ app.*.map.json
 
 # firebase key
 google-services.json
+# ai-apikey key
+AI_APIKEY.dart
