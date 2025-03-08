@@ -8,7 +8,7 @@ class GLOBAL {
 //!############################### VERSION ####################################
 
   static String APP_NAME = 'Inovasy-Prototype';
-  static String CURRENT_VERSION = '1.0.0+1'; //! <========== CHANGE EVERY UPDATE
+  static String CURRENT_VERSION = '1.0.0+6'; //! <========== CHANGE EVERY UPDATE
 
 //!################################ THEME #####################################
 
