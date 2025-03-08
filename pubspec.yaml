@@ -37,6 +37,7 @@ dependencies:
   # UI UX improvement
   flutter_native_splash: ^2.4.4 # ios-andoid-web native splash that directly display on app icon press
   #                             # before flutter init, removing that ugly blank white screen
+  fl_chart: ^0.66.1 # flexible chart
 
   # INTERNET etc THINGS
   firebase_core: ^3.10.1 # connecting to database

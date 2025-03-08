@@ -4,7 +4,7 @@ class TransactionModel {
   String? uid;
   String? city;
   List<PurchaseModel>? purchase;
-  String? date;
+  DateTime? date;
 
   TransactionModel({this.uid, this.city, this.purchase, this.date});
 
@@ -15,7 +15,7 @@ class TransactionModel {
       purchase: (json['purchase'] as List<dynamic>?)
           ?.map((e) => PurchaseModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      date: json['date'] as String?,
+      date: DateTime.tryParse(json['date'] as String? ?? ''),
     );
   }
 
@@ -23,6 +23,6 @@ class TransactionModel {
         'uid': uid,
         'city': city,
         'purchase': purchase?.map((e) => e.toJson()).toList(),
-        'date': date,
+        'date': date?.toIso8601String(),
       };
 }
