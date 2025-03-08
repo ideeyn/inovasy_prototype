@@ -11,6 +11,7 @@ import 'package:inovasy_prototype/models/transaction_model/purchase_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/transaction_model.dart';
 import 'package:inovasy_prototype/models/user_model/user_model.dart';
 import 'package:inovasy_prototype/screens/index/report/ranking/ranking_screen.dart';
+import 'package:inovasy_prototype/screens/index/report/widget_report/convex_clipper.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -46,9 +47,30 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> pickDate() async {
     DateTimeRange? picked = await showDateRangePicker(
       context: context,
+      helpText: 'Pilih Tanggal Laporan',
+      saveText: 'Simpan',
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
       initialDateRange: DateTimeRange(start: startDate, end: endDate),
+      initialEntryMode: DatePickerEntryMode.calendar,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: GLOBAL.appLogoColor, // Selected date circle color
+              onPrimary: Colors.white, // Selected date text color
+              onSurface: Colors.black, // Unselected date text color
+            ),
+            // For the range selection, you might also tweak the date picker theme:
+            datePickerTheme: DatePickerThemeData(
+              rangeSelectionBackgroundColor: Colors.orange.withOpacity(0.3),
+              // Color for the block between start and end dates
+              // Optionally you can also tweak other properties
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null) {
@@ -190,209 +212,239 @@ class _ReportScreenState extends State<ReportScreen> {
           ],
         ),
         backgroundColor: GLOBAL.appBackgroundColor,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: !isInitDone
-              ? const Center(
-                  child: LinearProgressIndicator(),
-                )
-              : SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 100),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                                'Laporan tanggal ${startDate.day} ${monthNamesIndonesian[startDate.month - 1].substring(0, 3)} - ${endDate.day} ${monthNamesIndonesian[endDate.month - 1].substring(0, 3)} ${startDate.year}'),
+        body: !isInitDone
+            ? const Center(
+                child: LinearProgressIndicator(),
+              )
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        ClipPath(
+                          clipper: BottomConvexClipper(),
+                          child: Container(
+                            width: double.infinity,
+                            height: 120,
+                            color:
+                                GLOBAL.appLogoColor, // Change color as needed
                           ),
-                          IconButton(
-                            onPressed: pickDate,
-                            icon: const Row(
-                              children: [
-                                Text('Ubah'),
-                                SizedBox(width: 5),
-                                Icon(Icons.calendar_month_rounded,
-                                    color: Colors.black, size: 24),
-                              ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: 30,
+                              right: 30,
+                              top: MediaQuery.of(context).size.width * 0.05),
+                          child: Opacity(
+                            opacity: 0.8,
+                            child: Image.asset(
+                              GLOBAL.imageHeadDecor,
+                              fit: BoxFit.fitWidth,
                             ),
                           ),
-                        ],
-                      ),
-                      Container(
-                        height: 200,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
                         ),
-                        child: dailyGraph(),
-                      ),
-                      const SizedBox(height: 5),
-                      ElevatedButton(
-                        onPressed: () {},
-                        style:
-                            IdeeynButtonStyle.custom(border: BorderSide.none),
-                        child: Container(
-                          height: 90,
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 20),
-                          child: Row(
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 20),
+                          Row(
                             children: [
-                              Image.asset(GLOBAL.imageGraph),
-                              const SizedBox(width: 20),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                child: Text(
+                                    'Laporan tanggal ${startDate.day} ${monthNamesIndonesian[startDate.month - 1].substring(0, 3)} - ${endDate.day} ${monthNamesIndonesian[endDate.month - 1].substring(0, 3)} ${startDate.year}'),
+                              ),
+                              IconButton(
+                                onPressed: pickDate,
+                                icon: const Row(
                                   children: [
-                                    const Text(
-                                      'Total Penjualan',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Rp ${IdeeynCurrencyString.numberToStringIndonesian(sellingTotal).split(',').first}',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
+                                    Text('Ubah'),
+                                    SizedBox(width: 5),
+                                    Icon(Icons.calendar_month_rounded,
+                                        color: Colors.black, size: 24),
                                   ],
                                 ),
-                              ),
-                              const SizedBox(width: 20),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 25),
-                                child: Image.asset(GLOBAL.imageGraphFiller),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: resumeCard(
-                              imagePath: GLOBAL.imageCart,
-                              achievement: '$transactionCount',
-                              description: 'Transaksi',
+                          Container(
+                            height: 200,
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
                             ),
+                            child: dailyGraph(),
                           ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: resumeCard(
-                              imagePath: GLOBAL.imagePerson,
-                              achievement: '$customerCount/$viewerCount',
-                              description: 'Pelanggan',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: resumeCard(
-                              imagePath: GLOBAL.imageCredit,
-                              achievement: '$soldCount/$productCount',
-                              description: 'Produk Terjual',
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: resumeCard(
-                              imagePath: GLOBAL.imageFund,
-                              achievement:
-                                  IdeeynCurrencyString.numberToStringIndonesian(
-                                          creditTotal)
-                                      .split(',')
-                                      .first,
-                              description: 'Piutang Penjualan',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: resumeCard(
-                              imagePath: GLOBAL.imageMoney,
-                              achievement:
-                                  IdeeynCurrencyString.numberToStringIndonesian(
-                                          marginTotal)
-                                      .split(',')
-                                      .first,
-                              description: 'Laba Penjualan',
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            flex: 2,
-                            child: ElevatedButton(
-                              onPressed: goToRanking,
-                              style: IdeeynButtonStyle.custom(
-                                  border: BorderSide.none),
-                              child: Container(
-                                height: 80,
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 20),
-                                child: Row(
-                                  children: [
-                                    Image.asset(GLOBAL.imageTrade),
-                                    const SizedBox(width: 10),
-                                    const Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          FittedBox(
-                                            child: Text(
-                                              'Ranking\nPenjualan',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
+                          const SizedBox(height: 5),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: IdeeynButtonStyle.custom(
+                                border: BorderSide.none),
+                            child: Container(
+                              height: 90,
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 20),
+                              child: Row(
+                                children: [
+                                  Image.asset(GLOBAL.imageGraph),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          'Total Penjualan',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        Text(
+                                          'Rp ${IdeeynCurrencyString.numberToStringIndonesian(sellingTotal).split(',').first}',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 25),
+                                    child: Image.asset(GLOBAL.imageGraphFiller),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: resumeCard(
+                                  imagePath: GLOBAL.imageCart,
+                                  achievement: '$transactionCount',
+                                  description: 'Transaksi',
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: resumeCard(
+                                  imagePath: GLOBAL.imagePerson,
+                                  achievement: '$customerCount/$viewerCount',
+                                  description: 'Pelanggan',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: resumeCard(
+                                  imagePath: GLOBAL.imageCredit,
+                                  achievement: '$soldCount/$productCount',
+                                  description: 'Produk Terjual',
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: resumeCard(
+                                  imagePath: GLOBAL.imageFund,
+                                  achievement: IdeeynCurrencyString
+                                          .numberToStringIndonesian(creditTotal)
+                                      .split(',')
+                                      .first,
+                                  description: 'Piutang Penjualan',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: resumeCard(
+                                  imagePath: GLOBAL.imageMoney,
+                                  achievement: IdeeynCurrencyString
+                                          .numberToStringIndonesian(marginTotal)
+                                      .split(',')
+                                      .first,
+                                  description: 'Laba Penjualan',
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 2,
+                                child: ElevatedButton(
+                                  onPressed: goToRanking,
+                                  style: IdeeynButtonStyle.custom(
+                                      border: BorderSide.none),
+                                  child: Container(
+                                    height: 80,
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15, vertical: 20),
+                                    child: Row(
+                                      children: [
+                                        Image.asset(GLOBAL.imageTrade),
+                                        const SizedBox(width: 10),
+                                        const Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              FittedBox(
+                                                child: Text(
+                                                  'Ranking\nPenjualan',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 100),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              '${GLOBAL.APP_NAME} version ${GLOBAL.CURRENT_VERSION}',
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
                         ],
                       ),
-                      const SizedBox(height: 100),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          '${GLOBAL.APP_NAME} version ${GLOBAL.CURRENT_VERSION}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-        ));
+              ));
   }
 
   ElevatedButton resumeCard(
