@@ -40,35 +40,6 @@ Future<String> callAIsAPI() async {
 
   //!==========================================================================
 
-  // final response = await http.post(
-  //   Uri.parse('https://api.openai.com/v1/chat/completions'),
-  //   headers: {
-  //     'Authorization': AI_SECRET_APIKEY, // Replace with your API Key
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: jsonEncode({
-  //     "model": "gpt-3.5-turbo",
-  //     "messages": [
-  //       {
-  //         "role": "system",
-  //         "content": "You are an expert in analyzing sales data."
-  //       },
-  //       {
-  //         "role": "user",
-  //         "content": "nope just say hi to response my chat test",
-  //         // "content":
-  //         //     "Analyze the following Firebase shop transactions and summarize insights in two paragraphs: $sales and $users and $viewers and $products and $transactions"
-  //       }
-  //     ]
-  //   }),
-  // );
-
-  // if (response.statusCode == 200) {
-  //   var result = jsonDecode(response.body);
-  //   return result['choices'][0]['message']['content'];
-  // } else {
-  //   return 'Failed with message: ${response.body}';
-  // }
   final response = await http.post(
     Uri.parse('https://api.mistral.ai/v1/chat/completions'),
     headers: {

@@ -118,9 +118,13 @@ class _ReportScreenState extends State<ReportScreen> {
     String aiText = await callAIsAPI();
     for (var user in listUser) {
       aiText = aiText.replaceAll(user.uid!, user.name!);
+      aiText = aiText.replaceAll(
+          user.uid![0].toUpperCase() + user.uid!.substring(1), user.name!);
     }
     for (var user in listSales) {
       aiText = aiText.replaceAll(user.sid!, user.name!);
+      aiText = aiText.replaceAll(
+          user.sid![0].toUpperCase() + user.sid!.substring(1), user.name!);
     }
     messageFromAI = '';
     for (int i = 0; i < aiText.length; i++) {
@@ -452,10 +456,10 @@ class _ReportScreenState extends State<ReportScreen> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          const Text(
+                          Text(
                             'Ringkasan dari AI',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.grey.shade700,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -466,7 +470,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                 horizontal: 15, vertical: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: Colors.orange.shade100,
+                              color: Colors.orange.shade50,
                             ),
                             child: Text(
                               messageFromAI,

@@ -38,7 +38,8 @@ dependencies:
   flutter_native_splash: ^2.4.4 # ios-andoid-web native splash that directly display on app icon press
   #                             # before flutter init, removing that ugly blank white screen
   fl_chart: ^0.66.1 # flexible chart
-  introduction_screen: ^3.1.17 # onboarding screens
+  # introduction_screen: ^3.1.17 # onboarding screens but too top. cant be centered.
+  flutter_onboarding_slider: ^1.0.11 # onboarding screens
 
   # INTERNET etc THINGS
   firebase_core: ^3.10.1 # firebase basic classes
