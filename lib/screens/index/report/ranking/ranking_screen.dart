@@ -1,12 +1,14 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:inovasy_prototype/APP_GLOBAL.dart';
-import 'package:inovasy_prototype/global/function/string_formatter.dart';
-import 'package:inovasy_prototype/models/date_names.dart';
 import 'package:inovasy_prototype/models/product_model/product_model.dart';
+import 'package:inovasy_prototype/models/ranking_menues.dart';
+import 'package:inovasy_prototype/models/ranking_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/purchase_model.dart';
 import 'package:inovasy_prototype/models/transaction_model/transaction_model.dart';
 import 'package:inovasy_prototype/models/user_model/user_model.dart';
+import 'package:inovasy_prototype/screens/index/report/ranking/widget_ranking/appbar_ranking.dart';
+import 'package:inovasy_prototype/screens/index/report/ranking/widget_ranking/chart_ranking.dart';
+import 'package:inovasy_prototype/screens/index/report/ranking/widget_ranking/draggable_modal.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen(
@@ -14,14 +16,12 @@ class RankingScreen extends StatefulWidget {
       required this.listUser,
       required this.listProduct,
       required this.listTransaction,
-      required this.dates,
-      required this.dailyTransaction});
+      required this.dates});
 
   final List<UserModel> listUser;
   final List<ProductModel> listProduct;
   final List<TransactionModel> listTransaction;
   final List<DateTime> dates;
-  final List<double> dailyTransaction;
 
   @override
   State<RankingScreen> createState() => _RankingScreenState();
@@ -29,33 +29,204 @@ class RankingScreen extends StatefulWidget {
 
 class _RankingScreenState extends State<RankingScreen> {
   late int selectedGraphIndex = widget.dates.length ~/ 3;
-  String selectedMenu = "PRODUK";
+  late List<double> dailyProduct;
+  late List<double> dailyCustomer;
+  late List<double> dailySales;
+  late List<double> dailyCity;
+  late List<RankingTableModel> tableData;
+  RankingMenu selectedMenu = RankingMenu.product;
+
+  @override
+  void initState() {
+    super.initState();
+    calculateGraph();
+    changeMenu(selectedMenu);
+  }
+
+  List<double> getListForMenu(RankingMenu menu) {
+    if (menu == RankingMenu.customer) return dailyCustomer;
+    if (menu == RankingMenu.sales) return dailySales;
+    if (menu == RankingMenu.city) return dailyCity;
+    return dailyProduct;
+  }
+
+  changeMenu(RankingMenu menu) {
+    selectedMenu = menu;
+    if (menu == RankingMenu.product) {
+      tableData = widget.listTransaction
+          .expand((t) => t.purchase!)
+          .fold<Map<String, RankingTableModel>>({}, (map, p) {
+            var product = widget.listProduct.firstWhere((lp) => lp.id == p.id!);
+            map.update(
+              product.name!,
+              (existing) => RankingTableModel(
+                name: existing.name,
+                count: existing.count! + p.quantity!,
+                price: (product.price! * (existing.count! + p.quantity!))
+                    .toDouble(),
+              ),
+              ifAbsent: () => RankingTableModel(
+                name: product.name,
+                count: p.quantity,
+                price: (product.price! * p.quantity!).toDouble(),
+              ),
+            );
+            return map;
+          })
+          .values
+          .toList();
+    }
+    if (menu == RankingMenu.customer) {
+      tableData = widget.listTransaction
+          .fold<Map<String, RankingTableModel>>({}, (map, t) {
+            // Unique identifier for the transaction owner
+            String uid = t.uid!;
+
+            // Calculate total price for this transaction from all its purchases
+            double transactionTotal = t.purchase!.fold<double>(0, (sum, p) {
+              var product =
+                  widget.listProduct.firstWhere((lp) => lp.id == p.id!);
+              return sum + (p.quantity! * product.price!);
+            });
+
+            // Update our map: if the UID exists, increment count and add to the price;
+            // otherwise, create a new RankingTableModel for this UID.
+            map.update(
+              uid,
+              (existing) => RankingTableModel(
+                name: uid,
+                count: existing.count! + 1,
+                price: existing.price! + transactionTotal,
+              ),
+              ifAbsent: () => RankingTableModel(
+                name: uid,
+                count: 1,
+                price: transactionTotal,
+              ),
+            );
+
+            return map;
+          })
+          .values
+          .map((d) => RankingTableModel(
+              name: widget.listUser.firstWhere((u) => u.uid! == d.name!).name,
+              count: d.count,
+              price: d.price))
+          .toList();
+    }
+    if (menu == RankingMenu.sales) {
+      tableData = widget.listTransaction
+          .fold<Map<String, RankingTableModel>>({}, (map, t) {
+            // Unique identifier for the transaction owner
+            String uid = t.uid!;
+
+            // Calculate total price for this transaction from all its purchases
+            double transactionTotal = t.purchase!.fold<double>(0, (sum, p) {
+              var product =
+                  widget.listProduct.firstWhere((lp) => lp.id == p.id!);
+              return sum + (p.quantity! * product.price!);
+            });
+
+            // Update our map: if the UID exists, increment count and add to the price;
+            // otherwise, create a new RankingTableModel for this UID.
+            map.update(
+              uid,
+              (existing) => RankingTableModel(
+                name: uid,
+                count: existing.count! + 1,
+                price: existing.price! + transactionTotal,
+              ),
+              ifAbsent: () => RankingTableModel(
+                name: uid,
+                count: 1,
+                price: transactionTotal,
+              ),
+            );
+
+            return map;
+          })
+          .values
+          .map((d) => RankingTableModel(
+              name: widget.listUser.firstWhere((u) => u.uid! == d.name!).name,
+              count: d.count,
+              price: d.price))
+          .toList();
+    }
+    if (menu == RankingMenu.city) {
+      tableData = widget.listTransaction
+          .fold<Map<String, RankingTableModel>>({}, (map, t) {
+            // Unique identifier for the transaction owner
+            String city = t.city!;
+
+            // Calculate total price for this transaction from all its purchases
+            double transactionTotal = t.purchase!.fold<double>(0, (sum, p) {
+              var product =
+                  widget.listProduct.firstWhere((lp) => lp.id == p.id!);
+              return sum + (p.quantity! * product.price!);
+            });
+
+            // Update our map: if the UID exists, increment count and add to the price;
+            // otherwise, create a new RankingTableModel for this UID.
+            map.update(
+              city,
+              (existing) => RankingTableModel(
+                name: city,
+                count: existing.count! + 1,
+                price: existing.price! + transactionTotal,
+              ),
+              ifAbsent: () => RankingTableModel(
+                name: city,
+                count: 1,
+                price: transactionTotal,
+              ),
+            );
+
+            return map;
+          })
+          .values
+          .toList();
+    }
+    setState(() {});
+  }
+
+  calculateGraph() {
+    dailyProduct = List.generate(
+        widget.dates.length,
+        (index) => widget.listTransaction
+            .where((t) => t.date?.day == widget.dates[index].day)
+            .expand((t) => t.purchase ?? <PurchaseModel>[])
+            .map((p) => p.quantity!)
+            .fold(0, (sum, current) => sum + current));
+    dailyCustomer = List.generate(
+        widget.dates.length,
+        (index) => widget.listTransaction
+            .where((t) => t.date?.day == widget.dates[index].day)
+            .map((p) => p.uid!)
+            .toSet()
+            .length
+            .toDouble());
+    dailySales = List.generate(
+        widget.dates.length,
+        (index) => widget.listTransaction
+            .where((t) => t.date?.day == widget.dates[index].day)
+            .length
+            .toDouble());
+    dailyCity = List.generate(
+        widget.dates.length,
+        (index) => widget.listTransaction
+            .where((t) => t.date?.day == widget.dates[index].day)
+            .map((p) => p.city!)
+            .toSet()
+            .length
+            .toDouble());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.white,
-              )),
-        ),
+      appBar: RankingAppbar(
         backgroundColor: GLOBAL.appLogoColor,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.more_vert_rounded,
-                  color: Colors.white,
-                )),
-          ),
-        ],
+        contentColor: Colors.white,
       ),
       backgroundColor: GLOBAL.appLogoColor,
       body: Stack(
@@ -64,131 +235,18 @@ class _RankingScreenState extends State<RankingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              const Padding(
-                padding: EdgeInsets.only(left: 35),
-                child: Text(
-                  'Ranking',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 35),
-                child: Text(
-                  'Berdasarkan total penjualan',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+              Padding(
+                padding: const EdgeInsets.only(left: 35),
+                child: screenHeader(),
               ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 height: 150,
-                child: LineChart(
-                  LineChartData(
-                    gridData: const FlGridData(show: false),
-                    titlesData: const FlTitlesData(show: false),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: List.generate(
-                            widget.dates.length,
-                            (index) => FlSpot(index.toDouble(),
-                                widget.dailyTransaction[index])),
-                        color: Colors.white,
-                        barWidth: 1,
-                        isCurved: true,
-                        isStrokeCapRound: true,
-                        dotData: FlDotData(
-                          show: true, // Always show dots
-                          getDotPainter: (spot, percent, barData, index) {
-                            bool isSelected = selectedGraphIndex == index;
-                            return FlDotCirclePainter(
-                              radius: isSelected
-                                  ? 6
-                                  : 3, // Bigger dot when selected
-                              color: Colors.white,
-                              strokeWidth: isSelected ? 3 : 0,
-                              strokeColor: Colors.blueAccent,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                    lineTouchData: LineTouchData(
-                      handleBuiltInTouches: true,
-                      getTouchedSpotIndicator: (barData, spotIndexes) {
-                        return spotIndexes.map((index) {
-                          return const TouchedSpotIndicatorData(
-                            // Remove horizontal line
-                            FlLine(color: Colors.transparent),
-                            FlDotData(),
-                          );
-                        }).toList();
-                      },
-                      touchTooltipData: LineTouchTooltipData(
-                        tooltipBgColor: Colors.blueGrey,
-                        getTooltipItems: (spots) => spots
-                            .map((spot) {
-                              // bool isSelected =
-                              //     selectedGraphIndex == spot.spotIndex;
-                              // if (!isSelected) return null;
-                              return LineTooltipItem(
-                                'Rp ${IdeeynCurrencyString.numberToStringIndonesian(spot.y).split(',')[0]}\n', // Custom bubble text
-                                const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                                children: [
-                                  TextSpan(
-                                    text:
-                                        'Tanggal ${widget.dates[spot.x.toInt()].day} ${monthNamesIndonesian[widget.dates[spot.x.toInt()].month - 1].substring(0, 3)}',
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w300),
-                                  ),
-                                ],
-                              );
-                            })
-                            .whereType<LineTooltipItem>()
-                            .toList(),
-                      ),
-                      touchCallback:
-                          (FlTouchEvent event, LineTouchResponse? response) {
-                        if (event is FlTapUpEvent &&
-                            response?.lineBarSpots != null) {
-                          selectedGraphIndex =
-                              response!.lineBarSpots!.first.spotIndex;
-                          setState(() {});
-                        }
-                      },
-                    ),
-                    extraLinesData: ExtraLinesData(horizontalLines: [
-                      HorizontalLine(
-                        y: widget.listTransaction
-                            .where((t) =>
-                                t.date?.day ==
-                                widget.dates[selectedGraphIndex].day)
-                            .expand((t) => t.purchase ?? <PurchaseModel>[])
-                            .map((p) {
-                          double price = widget.listProduct
-                              .firstWhere((prd) => prd.id == p.id)
-                              .price!
-                              .toDouble();
-                          return p.quantity! * price;
-                        }).fold(0, (sum, price) => sum + price),
-                        color: Colors.white.withOpacity(0.5),
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      ),
-                    ]),
-                  ),
-                ),
+                child: RankingChart(
+                    chartDates: widget.dates,
+                    chartValues: getListForMenu(selectedMenu),
+                    selectedMenuName: selectedMenu.name),
               ),
               const SizedBox(height: 30),
               Padding(
@@ -196,10 +254,10 @@ class _RankingScreenState extends State<RankingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    menu('PRODUK'),
-                    menu('PELANGGAN'),
-                    menu('SALES'),
-                    menu('KABUPATEN'),
+                    menuBox(RankingMenu.product),
+                    menuBox(RankingMenu.customer),
+                    menuBox(RankingMenu.sales),
+                    menuBox(RankingMenu.city),
                   ],
                 ),
               ),
@@ -212,34 +270,11 @@ class _RankingScreenState extends State<RankingScreen> {
             minChildSize: 0.6,
             maxChildSize: 1.0, // Expand to full screen
             builder: (context, scrollController) {
-              return Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      Container(
-                        width: 40,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text("Draggable Sheet Content",
-                          style: TextStyle(fontSize: 18)),
-                      const SizedBox(height: 20),
-                      ...List.generate(
-                          20, (index) => ListTile(title: Text("Item $index"))),
-                    ],
-                  ),
-                ),
+              return DraggableModal(
+                scrollController: scrollController,
+                selectedMenu: selectedMenu,
+                tableData: tableData
+                  ..sort((a, b) => b.price!.compareTo(a.price!)),
               );
             },
           ),
@@ -248,11 +283,31 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-  GestureDetector menu(String name) {
-    bool isSelected = name == selectedMenu;
+  //!##########################################################################
+
+  Column screenHeader() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Ranking',
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: Colors.white)),
+        Text('Berdasarkan total penjualan',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white)),
+      ],
+    );
+  }
+
+  GestureDetector menuBox(RankingMenu menu) {
+    bool isSelected = menu == selectedMenu;
 
     return GestureDetector(
-        onTap: () => setState(() => selectedMenu = name),
+        onTap: () => changeMenu(menu),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
@@ -260,7 +315,7 @@ class _RankingScreenState extends State<RankingScreen> {
             color: isSelected ? Colors.white : null,
           ),
           child: Text(
-            name,
+            menu.name,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,

@@ -157,7 +157,6 @@ class _ReportScreenState extends State<ReportScreen> {
                   listUser: listUser,
                   listProduct: listProduct,
                   listTransaction: inDateTransactions,
-                  dailyTransaction: dailyTransactions,
                 )));
   }
 
@@ -441,7 +440,7 @@ class _ReportScreenState extends State<ReportScreen> {
     return Container(
       height: double.infinity,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.grey, width: 0.2)),
