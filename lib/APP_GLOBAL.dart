@@ -17,8 +17,11 @@ class GLOBAL {
 
 //!########################## FIREBASE VARIABLES ##############################
   static String FIREBASE_ID = "ideeyn-inovasy-prototype";
+  static String authCollection = "AUTH_CENTRAL";
   static String accountCollection = "account";
   static String shopCollection = "shop";
+  // ===============================================
+  static String versionDoc = "version";
   // -----------------------------------------------
   static String userDoc = "user";
   static String salesDoc = "sales";
@@ -26,7 +29,8 @@ class GLOBAL {
   static String productDoc = "product";
   static String transactionDoc = "transaction";
   static String viewerDoc = "viewer";
-  // -----------------------------------------------
+  // ===============================================
+  static String authField = "json";
   static String accountField = "json";
   static String shopField = "json";
 

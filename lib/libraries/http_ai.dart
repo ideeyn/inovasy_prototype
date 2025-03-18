@@ -2,41 +2,18 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:inovasy_prototype/APP_GLOBAL.dart';
 import 'package:inovasy_prototype/libraries/AI_APIKEY.dart';
+import 'package:inovasy_prototype/libraries/sharedpref_singleton.dart';
 
 Future<String> callAIsAPI() async {
-  // String sales = ' sales datas = ' +
-  //     (await FirebaseFirestore.instance
-  //             .collection(GLOBAL.accountCollection)
-  //             .doc(GLOBAL.salesDoc)
-  //             .get())
-  //         .data()?[GLOBAL.accountField];
-  // String users = ' users datas = ' +
-  //     (await FirebaseFirestore.instance
-  //             .collection(GLOBAL.accountCollection)
-  //             .doc(GLOBAL.userDoc)
-  //             .get())
-  //         .data()?[GLOBAL.accountField];
-  // String viewers = ' viewers datas = ' +
-  //     (await FirebaseFirestore.instance
-  //             .collection(GLOBAL.shopCollection)
-  //             .doc(GLOBAL.viewerDoc)
-  //             .get())
-  //         .data()?[GLOBAL.shopField];
-  String products = ' products datas = ' +
-      (await FirebaseFirestore.instance
-              .collection(GLOBAL.shopCollection)
-              .doc(GLOBAL.productDoc)
-              .get())
-          .data()?[GLOBAL.shopField];
-  String transactions = ' transactions datas = ' +
-      (await FirebaseFirestore.instance
-              .collection(GLOBAL.shopCollection)
-              .doc(GLOBAL.transactionDoc)
-              .get())
-          .data()?[GLOBAL.shopField];
+  String products = 'product datas = ' +
+      jsonEncode(LibrarySharedPref.ref.getMasterProduct
+          .map((p) => p.toJson())
+          .toList());
+  String transactions = 'transaction datas = ' +
+      jsonEncode(LibrarySharedPref.ref.getMasterTransaction
+          .map((p) => p.toJson())
+          .toList());
 
   //!==========================================================================
 

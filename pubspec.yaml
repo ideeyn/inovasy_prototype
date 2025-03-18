@@ -46,6 +46,7 @@ dependencies:
   firebase_core: ^3.10.1 # firebase basic classes
   cloud_firestore: ^5.6.2 # connecting to database
   http: ^1.3.0 # try to call AI api
+  url_launcher: ^6.3.1 # launch playstore update link
 
   # # LOCAL DATA STORANGE & MANAGEMENT
   shared_preferences: ^2.2.3 # for lightweight local data saving

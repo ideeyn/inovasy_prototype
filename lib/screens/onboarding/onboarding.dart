@@ -82,7 +82,7 @@ class OnboardingScreen extends StatelessWidget {
                 style: IdeeynButtonStyle.custom(
                   backgroundColor: Colors.orange.shade200,
                 ),
-                child: Text('Mulai'),
+                child: const Text('Mulai'),
               )),
               SizedBox(width: MediaQuery.of(context).size.width * 0.1),
             ],

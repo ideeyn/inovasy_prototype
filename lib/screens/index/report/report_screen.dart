@@ -1,10 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:inovasy_prototype/APP_GLOBAL.dart';
-import 'package:inovasy_prototype/firebase/firebase.dart';
 import 'package:inovasy_prototype/global/function/string_formatter.dart';
 import 'package:inovasy_prototype/global/style/buttonstyle.dart';
 import 'package:inovasy_prototype/libraries/http_ai.dart';
+import 'package:inovasy_prototype/libraries/sharedpref_singleton.dart';
 import 'package:inovasy_prototype/models/date_names.dart';
 import 'package:inovasy_prototype/models/product_model/product_model.dart';
 import 'package:inovasy_prototype/models/sales_model/sales_model.dart';
@@ -22,11 +22,12 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  late List<String> listViewer;
-  late List<UserModel> listUser;
-  late List<SalesModel> listSales;
-  late List<ProductModel> listProduct;
-  late List<TransactionModel> listTransaction;
+  List<String> listViewer = LibrarySharedPref.ref.getMasterViewer;
+  List<UserModel> listUser = LibrarySharedPref.ref.getMasterUser;
+  List<SalesModel> listSales = LibrarySharedPref.ref.getMasterSales;
+  List<ProductModel> listProduct = LibrarySharedPref.ref.getMasterProduct;
+  List<TransactionModel> listTransaction =
+      LibrarySharedPref.ref.getMasterTransaction;
   bool isInitDone = false;
   DateTime startDate = DateTime.now().subtract(const Duration(days: 24));
   DateTime endDate = DateTime.now();
@@ -103,11 +104,11 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> getFirebaseData() async {
-    listViewer = await LibraryFirebase.getViewers();
-    listUser = await LibraryFirebase.getUsers();
-    listSales = await LibraryFirebase.getSales();
-    listProduct = await LibraryFirebase.getProduct();
-    listTransaction = await LibraryFirebase.getTransactions();
+    // listViewer = await LibraryFirebase.getViewers();
+    // listUser = await LibraryFirebase.getUsers();
+    // listSales = await LibraryFirebase.getSales();
+    // listProduct = await LibraryFirebase.getProduct();
+    // listTransaction = await LibraryFirebase.getTransactions();
     calculateTotals();
     isInitDone = true;
     setState(() {});
